@@ -361,7 +361,7 @@ export default function Projects() {
 
                     <div className="flex flex-wrap gap-3">
                       <a
-                        href="#"
+                        href="https://github.com/jahnavibathini/portfolio"
                         className="group/btn inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary/90 transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5"
                       >
                         <ExternalLink size={14} />
