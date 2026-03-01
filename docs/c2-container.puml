@@ -1,0 +1,25 @@
+@startuml C2_Container_Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title AI Outfit Recommendation Platform - Container Diagram (C2)
+
+Person(user, "User", "Sends body measurements, style preferences, and occasion")
+
+System_Boundary(system, "AI Outfit Recommendation Platform") {
+    Container(api, "REST API", "Java / Spring Boot", "Handles requests, validates input, applies rate limiting, returns outfit suggestions")
+    Container(cache, "Cache", "Redis", "Caches Gemini responses to avoid repeat API calls. Per-endpoint TTL.")
+    Container(db, "Database", "MySQL", "Stores user profiles, request history, and recommendation logs")
+    Container(worker, "Image Processor", "Spring @Async / Thread Pool", "Processes uploaded images in background threads")
+}
+
+System_Ext(gemini, "Google Gemini API", "Generates outfit recommendations from user context")
+
+Rel(user, api, "POST /recommendations", "HTTPS / JSON")
+Rel(api, cache, "Check / store cached responses", "TCP")
+Rel(api, gemini, "Forward user context, get outfit picks", "HTTPS")
+Rel(api, db, "Read/write user data and logs", "JDBC")
+Rel(api, worker, "Hand off image uploads", "Async")
+Rel(worker, db, "Save processed image metadata", "JDBC")
+
+SHOW_LEGEND()
+@enduml

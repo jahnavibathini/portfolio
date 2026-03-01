@@ -1,0 +1,35 @@
+@startuml C3_Component_Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title AI Outfit Recommendation Platform - Component Diagram (C3)
+
+Container_Boundary(api, "REST API - Spring Boot Application") {
+
+    Component(controller, "RecommendationController", "Spring @RestController", "Accepts POST /recommendations, validates request body, returns JSON response")
+    Component(rateLimiter, "RateLimiter", "Token-Bucket Filter", "Limits requests per user to protect Gemini API quota")
+    Component(service, "OutfitService", "Spring @Service", "Orchestrates the recommendation flow: cache check, Gemini call, response mapping")
+    Component(cacheManager, "CacheManager", "Spring + Redis", "Checks Redis for cached responses before calling Gemini. Stores new results with TTL.")
+    Component(geminiClient, "GeminiClient", "REST Client", "Builds the prompt from user context and calls Google Gemini API")
+    Component(imageService, "ImageService", "Spring @Async", "Receives image uploads, processes them in a thread pool, saves metadata")
+    Component(repository, "RecommendationRepository", "Spring Data JPA", "Reads/writes user profiles, request history, and recommendation logs to MySQL")
+    Component(errorHandler, "GlobalExceptionHandler", "@ControllerAdvice", "Catches domain exceptions, maps them to structured error responses with correlation IDs")
+}
+
+ContainerDb(redis, "Redis", "Cache store")
+ContainerDb(mysql, "MySQL", "Persistent storage")
+System_Ext(gemini, "Google Gemini API", "AI model")
+
+Rel(controller, rateLimiter, "Request passes through")
+Rel(rateLimiter, service, "If allowed")
+Rel(service, cacheManager, "Check cache first")
+Rel(cacheManager, redis, "GET / SET", "TCP")
+Rel(service, geminiClient, "On cache miss")
+Rel(geminiClient, gemini, "POST prompt", "HTTPS")
+Rel(service, repository, "Log request + result")
+Rel(controller, imageService, "Hand off image")
+Rel(imageService, repository, "Save metadata")
+Rel(repository, mysql, "JDBC")
+Rel(controller, errorHandler, "On exception")
+
+SHOW_LEGEND()
+@enduml
