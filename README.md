@@ -24,16 +24,6 @@ Open [http://localhost:3000](http://localhost:3000).
 npm run build
 ```
 
-## Deploy to Vercel
-
-1. Push this repo to GitHub
-2. Go to [vercel.com](https://vercel.com)
-3. Import the repo
-4. Deploy — zero config needed
-
-## Resume
-
-Replace `public/resume.pdf` with the actual resume file.
 
 ## Project Structure
 
